@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <!-- Configurações básicas da página -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pizzaria JS - Resumo do Pedido</title>
+    
+    <!-- Links para folhas de estilo -->
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Container principal -->
+    <div class="container">
+        <!-- Cabeçalho da página -->
+        <div class="cabecalho">
+            <h1 class="titulo">Resumo do Pedido</h1>
+            <p class="subtitulo">Seu pedido está sendo preparado</p>
+        </div>
+
+        <!-- Área de resumo do pedido -->
+        <div id="resumoPedido">
+            <!-- Loader (animação de carregamento) -->
+            <div class="carregador"></div>
+        </div>
+
+        <!-- Informações de entrega (inicialmente ocultas) -->
+        <div id="infoEntrega" style="display: none;">
+            <!-- Taxa de entrega -->
+            <div class="item-resumo">
+                <span><i class="fas fa-truck"></i> Taxa de entrega:</span>
+                <span id="taxaEntregaResumo">R$ 0,00</span>
+            </div>
+            
+            <!-- Bebida selecionada -->
+            <div class="item-resumo">
+                <span><i class="fas fa-wine-bottle"></i> Bebida:</span>
+                <span id="bebidaResumo">-</span>
+            </div>
+            
+            <!-- Total do pedido -->
+            <div class="item-resumo resumo-total">
+                <span><i class="fas fa-receipt"></i> Total:</span>
+                <span id="totalResumo">R$ 0,00</span>
+            </div>
+            
+            <!-- Tempo estimado de entrega -->
+            <div class="item-resumo">
+                <span><i class="fas fa-clock"></i> Tempo estimado:</span>
+                <span id="tempoEntrega">-</span>
+            </div>
+        </div>
+
+        <!-- Mensagem de confirmação -->
+        <div id="mensagemConfirmacao" class="mensagem-feedback sucesso" style="display: none;"></div>
+
+        <!-- Botão para voltar ao início -->
+        <a href="index.html" class="botao principal">
+            <i class="fas fa-home"></i> Voltar ao início
+        </a>
+    </div>
+
+    <!-- Script JavaScript -->
+    <script>
+        /**
+         * Função executada quando o conteúdo da página é carregado
+         */
+        document.addEventListener('DOMContentLoaded', function() {
+            // Recupera o pedido do armazenamento local
+            const pedido = JSON.parse(localStorage.getItem('pedidoAtual'));
+            
+            // Se não houver pedido, redireciona para a página inicial
+            if (!pedido) {
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            // Simula um tempo de carregamento (1.5 segundos)
+            setTimeout(() => {
+                // Oculta o carregador
+                document.querySelector('.carregador').style.display = 'none';
+                
+                // Exibe as informações de entrega
+                document.getElementById('infoEntrega').style.display = 'block';
+                
+                // Preenche os dados do pedido
+                document.getElementById('taxaEntregaResumo').textContent = 
+                    `R$ ${pedido.taxaEntrega.toFixed(2)}`;
+                document.getElementById('bebidaResumo').textContent = 
+                    `${pedido.bebida} (R$ ${pedido.precoBebida.toFixed(2)})`;
+                document.getElementById('totalResumo').textContent = 
+                    `R$ ${pedido.total.toFixed(2)}`;
+                document.getElementById('tempoEntrega').textContent = 
+                    `${pedido.tempoEntrega} minutos`;
+                
+                // Cria a lista de pizzas
+                const resumoPedido = document.getElementById('resumoPedido');
+                resumoPedido.innerHTML = '<h2>Seu Pedido:</h2>';
+                
+                // Adiciona cada pizza ao resumo
+                pedido.pizzas.forEach((pizza, indice) => {
+                    const elementoPizza = document.createElement('div');
+                    elementoPizza.className = 'card-pizza';
+                    elementoPizza.innerHTML = `
+                        <h3>Pizza ${indice + 1}</h3>
+                        <div class="item-resumo">
+                            <span>Sabor:</span>
+                            <span>${pizza.sabor}</span>
+                        </div>
+                        <div class="item-resumo">
+                            <span>Tamanho:</span>
+                            <span>${pizza.tamanho}</span>
+                        </div>
+                        <div class="item-resumo">
+                            <span>Borda:</span>
+                            <span>${pizza.borda}</span>
+                        </div>
+                        <div class="item-resumo">
+                            <span>Preço:</span>
+                            <span>R$ ${pizza.preco.toFixed(2)}</span>
+                        </div>
+                    `;
+                    resumoPedido.appendChild(elementoPizza);
+                });
+                
+                // Mostra mensagem de confirmação
+                const mensagem = document.getElementById('mensagemConfirmacao');
+                mensagem.textContent = `Pedido confirmado! Entregaremos em ${pedido.cidade} em aproximadamente ${pedido.tempoEntrega} minutos.`;
+                mensagem.style.display = 'block';
+                
+            }, 1500);
+        });
+    </script>
+</body>
+</html>
